@@ -1,0 +1,107 @@
+# documents
+
+
+Optimize Samba
+
+Samba finetuning for better transfer speeds
+langerak - 31-12-2014
+
+
+Samba LogoA NAS is mainly used for filesharing purposes and therefore will mostly use Samba and/or NFS. Although the default settings for Samba are working as it should, it can perform rather slow on ARM hardware and even some x86 boards with weak CPU’s.
+In my test with my NetworkSpace2 the performance improvement was huge, using the stock values reading would not exceed 30MB/sec and 16MB/sec for writing. With the new settings this was improved to a pretty 65MB/sec for reading and 29MB/sec for writing! Note that this is a config used for my NS2 and for your own setup this is a good starting point and may need some changes within these settings to make it run optimal.
+This post will be covering some options that can be put in the global Samba configfile smb.conf and what it’s use is for per option. Also a more recent Samba implementation is needed for some of these options, a Samba newer than 2 years should work just fine.
+First you need to login via SSH and open up the file “/etc/samba/smb.conf”. Within the “[global]” section the extra options can be configured, below is the config I use on my NetworkSpace 2:
+socket options = IPTOS_LOWDELAY SO_RCVBUF=131072 SO_SNDBUF=131072 TCP_NODELAY
+min receivefile size = 2048
+use sendfile = true
+aio read size = 2048
+aio write size = 2048
+write cache size = 1024000
+read raw = yes
+write raw = yes
+getwd cache = yes
+oplocks = yes
+max xmit = 32768
+dead time = 15
+large readwrite = yes
+Now the explanation for the options:
+socket options
+This value can accept various settings regarding the socket that Samba creates for network I/O. Some of them can be used to decrease network latency, the options that can be set here are:
+TCP_NODELAY tells the server to send as many packets as necessary to keep delay low. This will account for a 30 percent speedup by itself. In Samba 2.0 socket options = TCP_NODELAY became the default value.
+IPTOS_LOWDELAY is another option trading off throughput for lower delay, but which affects routers and other systems, not the server. All the IPTOS options are new; they’re not supported by all operating systems and routers though. If they are supported, set IPTOS_LOWDELAY whenever you set TCP_NODELAY. This option gives us a minor speed up around 20%.
+SO_SNDBUF and SO_RCVBUF The send and receive buffers can often be the reset to a value higher than that of the operating system. This yields a marginal increase of speed until it reaches a point of diminishing returns. For a modern OpenBSD box serving shares to Windows xp/Vista or Linux machines a SO_SNDBUF and SO_RCVBUF of 65536 increased throughput by as much as 20% by itself.
+SO_KEEPALIVE initiates a periodic check every four(4) hours to see if the client is still there. This option eventually arranges to close dead connections, returning unused memory and process-table entries to the operating system. Using this option is conjunction with “deadtime = 15” to close idle connection as fast as your working environment will allow.
+min receivefile size
+This option changes the behavior of Samba when processing write calls. Any incoming write call on a non-signed SMB/CIFS connection greater than this value will not be processed in the normal way but will be passed to any underlying kernel recvfile or splice system call (if there is no such call Samba will emulate in user space). This allows zero-copy writes directly from network socket buffers into the filesystem buffer cache, if available. It may improve performance but user testing is recommended. If set to zero Samba processes write calls in the normal way. To enable POSIX large write support (SMB/CIFS writes up to 16Mb) this option must be nonzero. The maximum value is 128k. Values greater than 128k will be silently set to 128k.
+use sendfile
+If this parameter is yes, and the sendfile() system call is supported by the underlying operating system, then some SMB read calls (mainly ReadAndX and ReadRaw) will use the more efficient sendfile system call for files that are exclusively oplocked. This may make more efficient use of the system CPU’s and cause Samba to be faster.
+aio read size and aio write size
+Samba will read / write from file asynchronously when size of request is bigger than this value. Note that it happens only for non-chained and non-chaining reads and when not using write cache. Note that the maximum is 2048, setting it to anything higher will default back to
+write cache size
+This is the write cache size in bytes in which Samba will cache writes in memory, note that this is a memory hungry setting, using it on memory constrained systems may result in out of memory situations, normally between 512KB and 2MB are good values, but have to be tested.
+read raw and write raw
+This results in a low-latency file operation by reading the raw file data instead. Although it’s mostly enabled by default, setting it will not harm anything.
+getwd cache
+This option caches the path to the current directory avoiding directory listing waits.
+oplocks
+Opportunistic locks, or oplocks, allow clients to cache files locally, improving performance on the order of 30 percent. This option is now enabled by default. For read-only files, the fake oplocks provides the same functionality without actually doing any caching. If you have files that cannot be cached, oplocks can be turned off.
+max xmit
+In Samba, the option that is directly related with the MTU and window size is max xmit. This option sets the largest block of data Samba will try to write at any one time
+dead time
+Number of minutes of inactivity before a connection should be terminated.
+large readwrite
+This will have Samba read and write bigger chunks of data from and to the disk, depending on the client this may severely affect performance in a negative way, when using older clients set this to no.
+After you have changed the settings, save them and restart Samba:
+service samba restart
+Enjoy your new and better performing Samba server!
+kernel oplocks = no
+        socket options = IPTOS_LOWDELAY TCP_NODELAY SO_SNDBUF=131072 SO_RCVBUF=131072
+        use mmap = yes
+        max xmit = 131072
+        min receivefile size = 128k
+        unix extensions = no
+        wide links = Yes
+        oplocks = yes
+        level2 oplocks = no
+        max smbd processes = 128
+        printing = cups
+        printcap = /etc/printcap
+        load printers = yes
+        use sendfile = yes
+
+
+[global] 
+ log level = 1                      # Default is 0 
+ socket options = TCP_NODELAY IPTOS_LOWDELAY 
+ read raw = yes                     # Default 
+ write raw = yes                    # Default 
+ oplocks = yes                      # Default 
+ max xmit = 65535                   # Default 
+ dead time = 15                     # Default is 0
+ getwd cache = yes
+ lpq cache = 30
+[okplace] 
+ veto oplock files = this/that/theotherfile
+[badplace] 
+ oplocks = no
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
