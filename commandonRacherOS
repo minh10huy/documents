@@ -1,0 +1,8 @@
+Running the internal rancher-server service works as well. Just run:
+
+sudo ros service enable rancher-server
+sudo ros service up rancher-server
+If you want to see what services are available (not many), just run:
+
+sudo ros service list
+That's all from a combination of the docs, and --help commands.
