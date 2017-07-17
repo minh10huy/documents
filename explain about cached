@@ -1,0 +1,71 @@
+You've already got most of it understood.
+
+The cache backend, session store, opcode cache, full page cached and reverse proxy cache are all completely different.
+
+You can use different technologies for all and you can use them ALL simultaneously (including Varnish and a FPC)
+
+Cache Backends
+
+Files (Core) Default
+Memcache (Core)
+APC (Core)
+Redis (<1.9 module courtesy Colin Mollenhour)
+MongoDB (module courtesy Colin Mollenhour)
+Rubic (module courtesy Daniel Sloof)
+You can only use one cache backend.
+
+Contrary to popular belief, using a memory based cache will not improve performance. But it will overcome some fatal flaws in Magento's default file based caching.
+
+As of writing this message, Redis is my recommendation.
+
+Session Stores
+
+Files (Core) Default
+Memcache (Core)
+Redis (<1.9 module courtesy Colin Mollenhour)
+MongoDB (module courtesy Colin Mollenhour)
+You can only use one session store.
+
+Contrary to popular belief, using a memory based session store will not improve performance.
+
+As of writing this message, Redis is my recommendation.
+
+OpCode Cache
+
+APC
+XCache
+Eaccelerator (PHP <5.4)
+Zend OPCache (PHP >5.4)
+You can actually install multiple opcode caches, but it's not recommended, nor would I expect to see any gains.
+
+My recommendations are in the brackets above.
+
+No module is required to be installed to leverage this.
+
+Reverse Proxy Cache
+
+Varnish
+Nginx
+Apache
+… and many more
+You can use multiple reverse proxies, and whilst doing so is complex and prone to cache elongation, it can have merits (ie. To prevent stampeding during a cache flush).
+
+Use one when necessary (ie. Not to speed up a slow site, but to reduce resource usage on a fast site).
+
+To leverage a reverse proxy, it needs both enabling server side and needs a module for Magento.
+
+The reason for the module is to help control caching logic (ie. To tell the cache what it should and shouldn't cache) and also to manage cache contents (ie. To trigger purges of the cache).
+
+I don't recommend any unless you have a total understanding of what you are doing. Badly set up reverse proxies can break header information, can cause session loss, session sharing, stale content, apply additional limits to load time/buffers, consume additional resources etc.
+
+Full Page Cache
+
+EE FPC
+… lots of others (via modules)
+Use one when necessary (ie. Not to speed up a slow site, but to reduce resource usage on a fast site).
+
+Contrary to popular belief, you can (and should) use a FPC in conjunction with a reverse proxy cache. The two solve different problems and have different capabilities.
+
+FPCs can leverage more intelligence, because they have direct access to the users session and Magento's core, whereas a reverse proxy is not application aware (it's fairly dumb in the way it works) - so the two complement each other, not compete with each other.
+
+Ie. Don't think Varnish or FPC, think Varnish and FPC.
