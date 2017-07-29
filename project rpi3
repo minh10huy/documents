@@ -2,4 +2,72 @@ Nginx Proxy
 https://github.com/lroguet/rpi-nginx-proxy
 https://hub.docker.com/r/lroguet/rpi-nginx-proxy/
 https://fourteenislands.io/2016/04/nginx-reverse-proxy-docker-and-a-raspberry-pi/
+***********
+nginx-reverse-proxy-docker-and-a-raspberry-pi
+
+Nginx reverse proxy, Docker and a Raspberry Pi
+Apr 11, 2016 · 2 minute read · 2 Comments
+If you read my previous post you should know that fourteenislands.io is served by a Nginx web server (Docker) running on a Raspberry Pi. But what started as a sandbox environment to host a few static pages is getting busier everyday and I, among other things, needed to host a couple of RESTful web APIs on that Raspberry Pi (on a different domain name).
+
+Automated Nginx reverse proxy for Docker
+I’ll spare you with the details as to why a reverse proxy and how to automatically generate reverse proxy configuration when ‘backend’ Docker containers are started and stopped and suggest you read this interesting post by Jason Wilder.
+
+Jason’s nginx-proxy targets the X86 architecture and cannot be used as is on a Raspberry Pi. You could use rpi-nginx-proxy instead which is the equivalent I published for the ARM architecture.
+
+So, let’s start a proxy.
+
+From a terminal on your RPi open your favorite text editor and save the following as docker-compose.yml
+
+# docker-compose.yml for the nginx reverse proxy
+nginx-proxy:
+  container_name: nginx-proxy
+  image: lroguet/rpi-nginx-proxy:latest
+  ports:
+    - "80:80"
+  volumes:
+    - /var/run/docker.sock:/tmp/docker.sock:ro
+view rawdocker-compose.yml hosted with ❤ by GitHub
+Start the Nginx reverse proxy ‘frontend’ container with the following command
+
+$ docker-compose run -d --service-ports nginx-proxy
+You don’t really need Docker Compose here and could run the same ‘frontend’ container with that one-liner:
+
+$ docker run -d -p 80:80 -v /var/run/docker.sock:/tmp/docker.sock:ro lroguet/rpi-nginx-proxy
+That was easy, wasn’t it?
+
+Serving a domain (fourteenislands.io for example)
+Now that the reverse proxy is up and running we can just start whatever ‘backend’ container we want to serve content for a specific domain (note the VIRTUAL_HOST environment variable in the docker-compose.yml file below).
+
+From a terminal on your RPi open your favorite text editor and save the following as docker-compose.yml
+
+# docker-compose.yml for lab.fourteenislands.io
+# Assumes your generated/copied static site is in /home/pi/volumes/nginx
+web:
+  container_name: nginx
+  image: lroguet/rpi-nginx:latest
+  environment:
+    - VIRTUAL_HOST=fourteenislands.io
+  volumes:
+    - /home/pi/volumes/nginx:/var/www/html
+view rawdocker-compose.yml hosted with ❤ by GitHub
+Start the Nginx ‘backend’ container with the following command
+
+$ docker-compose run -d --service-ports web
+Using Docker Compose makes more sense here but is obviously not required.
+
+Starting a ‘backend’ container triggers a Docker start event, the reverse proxy configuration is generated and the ‘frontend’ Nginx reloaded.
+
+Received event start for container...
+
+When a ‘backend’ container is stopped or dies, a Docker die/stop event is triggered, the reverse proxy configuration is generated and the ‘frontend’ Nginx reloaded.
+
+Received event die for container...
+
+Monitoring dashboard for Docker
+
+https://p.datadoghq.com/sb/8e976d062-dcf3f6e295
+
+As always, have fun and if you have any questions, please leave a comment.
+
+Update. fourteenislands.io is not currently served from a Raspberry Pi but from an Amazon S3 bucket.
 
