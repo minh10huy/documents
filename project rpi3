@@ -6,7 +6,7 @@ https://fourteenislands.io/2016/04/nginx-reverse-proxy-docker-and-a-raspberry-pi
 nginx-reverse-proxy-docker-and-a-raspberry-pi
 
 Nginx reverse proxy, Docker and a Raspberry Pi
-Apr 11, 2016 · 2 minute read · 2 Comments
+
 If you read my previous post you should know that fourteenislands.io is served by a Nginx web server (Docker) running on a Raspberry Pi. But what started as a sandbox environment to host a few static pages is getting busier everyday and I, among other things, needed to host a couple of RESTful web APIs on that Raspberry Pi (on a different domain name).
 
 Automated Nginx reverse proxy for Docker
