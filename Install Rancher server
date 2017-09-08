@@ -1,0 +1,34 @@
+You have a few options:
+
+Install rancher server in a single container (including the database)
+Install rancher server with an extern database
+Install rancher server and mount the MySQL data volume
+Your first option is to boot up Rancher server in a single container. The MySQL database is available in this container and is used by Rancher to store all the configuration in it.
+
+$ docker run -d --restart=unless-stopped -p 8080:8080 rancher/server:stable
+The second option is to use an external database. I used a second MySQL container for the MySQL database and linked it to the Rancher server container.
+
+$ docker run -d --name rancher-mysql --restart=unless-stopped -e MYSQL_ROOT_PASSWORD=<password> -e MYSQL_DATABASE=cattle mysql:5.7
+$ docker run -d --restart=unless-stopped --link rancher-mysql:rancher-mysql -p 8080:8080 rancher/server:stable --db-host rancher-mysql --db-port 3306 --db-user root --db-pass <password> --db-name cattle
+Option 3 maps the MySQL data directory to the host.
+
+$ docker run -d -v <path>:/var/lib/mysql --restart=unless-stopped -p 8080:8080 rancher/server:stable
+Rancher server uses port 8080 for the web interface. Configure the firewall to allow port 8080 and reload it.
+
+$ sudo firewall-cmd --zone=public --add-port=8080/tcp --permanent
+$ sudo firewall-cmd --reload
+Check if the port is configured correctly.
+
+$ sudo firewall-cmd --list-ports
+Check if ipv6 forwarding is enabled, otherwise it is possible that you can't connect to the Rancher web interface because Docker binds ports to IPv6 when available.
+
+$ sudo sysctl -a | grep net.ipv6.conf.all.forwarding
+If IPv6 forwarding is disabled, change the /etc/sysctl.conf configuration file to enable it.
+
+net.ipv6.conf.all.forwarding=1
+If you've changed the configuration, reboot the server to reload the configuration.
+
+$ sudo reboot
+If everything went well, you're ready to use the Rancher server. Go to http://<your ip>:8080 and configure user management.
+
+If you found this post useful, or if you have any questions, leave a comment!
