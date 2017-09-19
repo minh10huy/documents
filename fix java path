@@ -1,0 +1,9 @@
+Found the problem I have set Environmental Variables in /etc/environment which caused the system.
+
+export JAVA_HOME=/opt/jdk1.8.0_121
+export JRE_HOME=/opt/jdk1.8.0_121/jre
+export PATH=$PATH:/opt/jdk1.8.0_121/bin:/opt/jdk1.8.0_121/jre/bin
+
+FIX : PATH=/usr/local/bin:/usr/bin:$PATH
+
+Then , THe issue resolved, Remove the content in the /etc/environment file. Happy Fixing 😉
