@@ -1,6 +1,6 @@
 #cloud-config
 
-hostname: ho-srvt-nodexx
+hostname: ho-srvt-node03
 
 coreos:
   units:
@@ -10,21 +10,40 @@ coreos:
     - name: ntpd.service
       command: start
       enable: true
-passwd:
-  users:
+    - name: systemd-networkd.service
+      command: stop
+    - name: 00-eth0.network
+      runtime: true
+      content: |
+        [Match]
+        Name=ens32
+
+        [Network]
+        DNS=10.1.1.20
+        Address=10.1.15.101/24
+        Gateway=10.1.15.1
+    - name: down-interfaces.service
+      command: start
+      content: |
+        [Service]
+        Type=oneshot
+        ExecStart=/usr/bin/ip link set ens32 down
+        ExecStart=/usr/bin/ip addr flush dev ens32
+    - name: systemd-networkd.service
+      command: restart
+users:
     - name: core
-      password_hash: "$1$xtEFI2aX$g0vpiJ9L8thvBxDkziVkq1"
       ssh_authorized_keys:
         - "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDSh14XLTh0B6oQiFF44/gK+4zrsDko8FKRTPlz5iNb9q2vabtMVDyF4dLbu/CvG5mNQ0uvakXSmIczEaBzHTKaVLpCkNZgtjpFu+XlR6mxauv2Lvhe+r8E7FaqBRK9FpQNicFXpgX7UPqc6/zVU4MR90kyyojBdJIBCPu70buYkC5rwrze8vwY15k58buq8CLHMASPU6gHdAdSJ9ZRVCoWYl53FQLUzmRB0s4m0UjG+D/jJaFNjqbVCN+MkQDYH3q93olZdhLeq+hKyrMRbva8dDq0Spb3Np5aovHtevRe2/rAv7ijEpKQe4Na4O4LMFf1bvLEf4UQ3b1UwZj6WeMv root@HO-SRV-TOOLS"
       groups:
         - "sudo"
         - "docker"
     - name: itsgb
-      password_hash: "$1$xtEFI2aX$g0vpiJ9L8thvBxDkziVkq1"
       ssh_authorized_keys:
         - "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDSh14XLTh0B6oQiFF44/gK+4zrsDko8FKRTPlz5iNb9q2vabtMVDyF4dLbu/CvG5mNQ0uvakXSmIczEaBzHTKaVLpCkNZgtjpFu+XlR6mxauv2Lvhe+r8E7FaqBRK9FpQNicFXpgX7UPqc6/zVU4MR90kyyojBdJIBCPu70buYkC5rwrze8vwY15k58buq8CLHMASPU6gHdAdSJ9ZRVCoWYl53FQLUzmRB0s4m0UjG+D/jJaFNjqbVCN+MkQDYH3q93olZdhLeq+hKyrMRbva8dDq0Spb3Np5aovHtevRe2/rAv7ijEpKQe4Na4O4LMFf1bvLEf4UQ3b1UwZj6WeMv root@HO-SRV-TOOLS"
-      create:
-        groups: [ sudo, docker ]
+            groups:
+        - "sudo"
+        - "docker"
 write_files:
   - path: /etc/ntp.conf
     content: |
@@ -40,14 +59,3 @@ write_files:
     owner: "root"
     content: |
       nameserver 10.1.1.20
- networkd:
-  units:
-    - name: 00-eth0.network
-      contents: |
-        [Match]
-        Name=ens32
-
-        [Network]
-        DNS=10.1.1.20
-        Address=10.1.15.101/24
-        Gateway=10.1.15.1
