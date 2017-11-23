@@ -1,6 +1,6 @@
 #cloud-config
 
-hostname: ho-srvt-node03
+hostname: ho-srvt-nodexx
 
 coreos:
   units:
