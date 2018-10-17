@@ -33,14 +33,16 @@ coreos:
       command: restart
 users:
     - name: core
+      passwd: "$6$SALT$Vla3k9Ain5XcINOWsIsD5XSiNqo/O92pL2jdAQgAwufoPdphkuw02G69cPsQnX/DTlgWGiA3TVnOqv6L/q4nR1"
       ssh_authorized_keys:
-        - "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDSh14XLTh0B6oQiFF44/gK+4zrsDko8FKRTPlz5iNb9q2vabtMVDyF4dLbu/CvG5mNQ0uvakXSmIczEaBzHTKaVLpCkNZgtjpFu+XlR6mxauv2Lvhe+r8E7FaqBRK9FpQNicFXpgX7UPqc6/zVU4MR90kyyojBdJIBCPu70buYkC5rwrze8vwY15k58buq8CLHMASPU6gHdAdSJ9ZRVCoWYl53FQLUzmRB0s4m0UjG+D/jJaFNjqbVCN+MkQDYH3q93olZdhLeq+hKyrMRbva8dDq0Spb3Np5aovHtevRe2/rAv7ijEpKQe4Na4O4LMFf1bvLEf4UQ3b1UwZj6WeMv root@HO-SRV-TOOLS"
+        - "ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAQEAkGbU0h5MMsVCy3aDPOOTWvSNdKiXj1bKb5bhH8Z7yNo3UKksTMfoYzUxMOHtxXwnAR4m9xQ0GeLkdIz0bwpf81/NEX9vZwUSQ5QN+Mvp/RZkCMSCFRQD4eGe84JMGHDa6jdhngFDsB9oNbUOCTJoXxq93jNXYgtXxZVYJ5chRUa3tkVPBP0A4ByVnh5vrg10ypnVBHgWk5sg4RyQyBDUid1D3We/HdWry/Duo/WnSz6bOQfzcZqwfIO96IYvJMXW61vN+rKDfP44CnadrEeMYi2a0Fk004dNAGq57A+Vp/QDZM7cXmBWxIo9jB6n2UyHSjWcicfTCR/WqRCzRiWA5w=="
       groups:
         - "sudo"
         - "docker"
-    - name: itsgb
+    - name: admin
+      passwd: "$6$SALT$Vla3k9Ain5XcINOWsIsD5XSiNqo/O92pL2jdAQgAwufoPdphkuw02G69cPsQnX/DTlgWGiA3TVnOqv6L/q4nR1"
       ssh_authorized_keys:
-        - "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDSh14XLTh0B6oQiFF44/gK+4zrsDko8FKRTPlz5iNb9q2vabtMVDyF4dLbu/CvG5mNQ0uvakXSmIczEaBzHTKaVLpCkNZgtjpFu+XlR6mxauv2Lvhe+r8E7FaqBRK9FpQNicFXpgX7UPqc6/zVU4MR90kyyojBdJIBCPu70buYkC5rwrze8vwY15k58buq8CLHMASPU6gHdAdSJ9ZRVCoWYl53FQLUzmRB0s4m0UjG+D/jJaFNjqbVCN+MkQDYH3q93olZdhLeq+hKyrMRbva8dDq0Spb3Np5aovHtevRe2/rAv7ijEpKQe4Na4O4LMFf1bvLEf4UQ3b1UwZj6WeMv root@HO-SRV-TOOLS"
+        - "ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAQEAkGbU0h5MMsVCy3aDPOOTWvSNdKiXj1bKb5bhH8Z7yNo3UKksTMfoYzUxMOHtxXwnAR4m9xQ0GeLkdIz0bwpf81/NEX9vZwUSQ5QN+Mvp/RZkCMSCFRQD4eGe84JMGHDa6jdhngFDsB9oNbUOCTJoXxq93jNXYgtXxZVYJ5chRUa3tkVPBP0A4ByVnh5vrg10ypnVBHgWk5sg4RyQyBDUid1D3We/HdWry/Duo/WnSz6bOQfzcZqwfIO96IYvJMXW61vN+rKDfP44CnadrEeMYi2a0Fk004dNAGq57A+Vp/QDZM7cXmBWxIo9jB6n2UyHSjWcicfTCR/WqRCzRiWA5w=="
             groups:
         - "sudo"
         - "docker"
