@@ -1,6 +1,6 @@
 #cloud-config
 
-hostname: ho-srvt-node03
+hostname: coreOS
 
 coreos:
   units:
@@ -16,12 +16,11 @@ coreos:
       runtime: true
       content: |
         [Match]
-        Name=ens32
-
+        Name=e*
         [Network]
-        DNS=10.1.1.20
-        Address=10.1.15.101/24
-        Gateway=10.1.15.1
+        DNS=8.8.8.8
+        Address=192.168.1.111/24
+        Gateway=192.168.1.100
     - name: down-interfaces.service
       command: start
       content: |
@@ -49,8 +48,8 @@ users:
 write_files:
   - path: /etc/ntp.conf
     content: |
-      server 0.10.1.1.20
-      server 1.10.1.1.21
+      server 0.asia.pool.ntp.org
+      server 1.asia.pool.ntp.org
       # - Allow only time queries, at a limited rate.
       # - Allow all local queries (IPv4, IPv6)
       restrict default nomodify nopeer noquery limited kod
@@ -60,7 +59,7 @@ write_files:
     permissions: "0644"
     owner: "root"
     content: |
-      nameserver 10.1.1.20
+      nameserver 8.8.8.8
   - path: /etc/profile.d/aliases.sh
     content: |
     alias l='ls -lFh'
